@@ -1,44 +1,51 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_IMAGE = "username_dockerhub/simple-node-apps"
-    }
-
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/rjuwansyah/simple-node-apps.git'
+                echo '📦 Cloning repository...'
+                git branch: 'main', url: 'https://github.com/Rjuwansyah/simple-node-apps.git'
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t $DOCKER_IMAGE:latest .'
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         echo '🔨 Building Docker image...'
+        //         sh 'docker build -t rjuwansyah/simple-node-apps:latest .'
+        //     }
+        // }
 
-        stage('Login & Push to DockerHub') {
-            steps {
-                sh '''
-                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                    docker push $DOCKER_IMAGE:latest
-                '''
-            }
-        }
+        // stage('Login to DockerHub') {
+        //     steps {
+        //         echo '🔑 Logging in to DockerHub...'
+        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        //             sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+        //         }
+        //     }
+        // }
 
-        stage('Deploy to Server2') {
-            steps {
-                sh '''
-                    ssh vboxuser2@192.168.56.101 '
-                        docker pull $DOCKER_IMAGE:latest &&
-                        docker stop simple-node-apps || true &&
-                        docker rm simple-node-apps || true &&
-                        docker run -d -p 3000:3000 --name simple-node-apps $DOCKER_IMAGE:latest
-                    '
-                '''
-            }
+        // stage('Push Image to DockerHub') {
+        //     steps {
+        //         echo '📤 Pushing image to DockerHub...'
+        //         sh 'docker push rjuwansyah/simple-node-apps:latest'
+        //     }
+        // }
+
+        // stage('Deploy to Server2') {
+        //     steps {
+        //         echo '🚀 Deploying to Server 2...'
+        //         sh 'ssh -o StrictHostKeyChecking=no user@server2 "docker pull rjuwansyah/simple-node-apps:latest && docker run -d -p 3000:3000 rjuwansyah/simple-node-apps:latest"'
+        //     }
+        // }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline berhasil: clone repo sukses!'
+        }
+        failure {
+            echo '❌ Pipeline gagal: periksa log error.'
         }
     }
 }
