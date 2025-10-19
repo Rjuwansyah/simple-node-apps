@@ -31,7 +31,7 @@ pipeline {
         stage('Deploy to Server2') {
             steps {
                 sh '''
-                    ssh ubuntu@<ip-server2> '
+                    ssh vboxuser2@192.168.56.101 '
                         docker pull $DOCKER_IMAGE:latest &&
                         docker stop simple-node-apps || true &&
                         docker rm simple-node-apps || true &&
